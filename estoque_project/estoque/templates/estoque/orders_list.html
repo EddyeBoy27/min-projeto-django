@@ -1,0 +1,18 @@
+<div>
+    <div>
+        <p> {{ prod.aprodnome }} </p>
+    </div>
+    <div>
+        <p> {{ prod.aprodvalor }} </p>
+    <div>
+    <div>
+        <p>{{ prod.aprodqntd }}</p>
+    </div>
+    <div>
+        <div><button type="button" onclick="increaseQnt(event)" value="{{ prod.aprodid }}">+</button></div>
+        <div>
+            <p id="order-qnt{{prod.a}}">{{ ped }}</p>
+        </div>
+        <div><button type="button">-</button></div>
+    </div>
+</div>

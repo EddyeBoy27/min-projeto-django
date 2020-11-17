@@ -1,0 +1,47 @@
+{% extends "estoque/base.html" %}
+
+{% block title %}Lista de Produtos{% endblock %}
+
+
+{% block content %}
+<header>
+    <h1>Lista de Produtos</h1>
+</header>
+<a href="{% url 'index:index' %}"><button type="button">Página Inicial</button></a>
+<a href="{% url 'produto:create' %}"><button type="button">Criar Produto</button></a>
+<p>Usuário: {{ request.user }}</p>
+{% csrf_token %}
+<article>
+    {% for produto in aproduto_list %}
+    <table>
+        <thead>
+            <th>Produto</th>
+            <th>Valor</th>
+            <th>Quantidade</th>
+            <th>Ativo</th>
+            <th>Remover</th>
+            <th>Adicionar ao Carrinho</th>
+        </thead>
+        <tbody>
+            <td><a href="{{ produto.get_absolute_url }}">{{ produto.aprodnome }}</a></td>
+            <td>{{ produto.aprodvalor }}</td>
+            <td>{{ produto.aprodqntd }}</td>
+            <td>{{ produto.aprodativo}}</td>
+            <td>
+                <a href="{% url 'produto:delete' pk=produto.aprodid %}">
+                    <button type="button">X</button>
+                </a>
+            </td>
+            <td>
+                <button type="button" onclick="orderList(event)" value="{{ produto.aprodid }}">
+                    Adicionar
+                </button>
+            </td>
+        </tbody>
+    </table>
+    {% endfor %}
+</article>
+<aside id="aside-container">
+</aside>
+
+{% endblock %}

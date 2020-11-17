@@ -1,0 +1,13 @@
+{% extends 'estoque/base.html' %}
+
+{% block content %}
+<header>
+    <h1>Crie seu produto</h1>
+</header>
+<form action='' method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type='submit' value='Criar'>
+</form>
+
+{% endblock %}

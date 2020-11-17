@@ -1,0 +1,13 @@
+{% extends "estoque/base.html" %}
+
+{% block title %}Pedidos{% endblock %}
+
+{% block content %}
+<h1>Painel de controle</h1>
+<article>
+    <a href="{% url 'produto:list' %}"><button type="button">Lista de Produtos</button></a>
+    <a><button type="button">Meus Pedidos</button></a>
+    <a><button type="button">Carrinho de Compras</button></a>
+    <a href="{% url 'user:logout' %}"><button type="button">Logout</button></a>
+</article>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "estoque/base.html" %}
+
+{% block title %}{{ aproduto.aprodutonome }}{% endblock %}
+
+{% block content %}
+    <header>
+        <h1>Detalhes do Produto</h1>
+    </header>
+    <p>
+        Nome: {{ aproduto.aprodnome }}
+    </p>
+    <p>
+        Valor: {{ aproduto.aprodvalor }}
+    </p>
+    <p>
+        Quantidade: {{ aproduto.aprodqntd }}
+    </p>
+    <p>
+        Ativo: {{ aproduto.aprodativo }}
+    </p>
+    <a href="{% url 'produto:update' aproduto.aprodid %}" >Editar Produto</a>
+{% endblock %}
