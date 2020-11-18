@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 
-from .models import Aproduto, Acliente
+from .models import Aproduto
 
 
 class ProductForm(forms.ModelForm):
@@ -16,22 +17,21 @@ class ProductForm(forms.ModelForm):
 
 
 class UserForm(forms.ModelForm):
-    aclinome = forms.CharField(min_length=8, label='Nome')
-    aclipass = forms.CharField(
+    username = forms.CharField(min_length=8, label='Nome')
+    password = forms.CharField(
         min_length=6,
         max_length=20,
         widget=forms.TextInput(attrs={'type': 'password'}),
         label='Senha'
     )
-    acliemail = forms.EmailField(required=True, label='Email')
+    email = forms.EmailField(required=True, label='Email')
 
     class Meta:
-        model = Acliente
+        model = User
         fields = [
-            'acliid',
-            'aclinome',
-            'acliemail',
-            'aclipass',
+            'username',
+            'email',
+            'password',
         ]
 
 
@@ -49,7 +49,7 @@ class LoginForm(forms.ModelForm):
     )
 
     class Meta:
-        model = Acliente
+        model = User
         fields = [
             'acliemail',
             'aclipass',

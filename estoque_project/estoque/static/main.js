@@ -4,24 +4,26 @@ async function orderList(event) {
     const { target } = event;
     event.preventDefault();
     const bodyAppend = document.getElementById('aside-container');
-    const csrfToken = document.querySelector(
-        '[name=csrfmiddlewaretoken]'
-    ).getAttribute('value');
     const pk = target.getAttribute('value');
-    const qntValue = document.getElementById(`qnt-container${pk}`)
+    const qntValue = document.getElementById('order-qnt')
+    const apediid = document.getElementById('apediid');
     let apiResult;
+    axios.defaults.xsrfCookieName = 'csrftoken';
+    axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
     if (!pksList.includes(pk)) {
         apiResult = await axios.post(
             `http://127.0.0.1:8000/produtos/orders/add/${pk}/`,
-            { data: {
-                'csrfmiddlewaretoken': csrfToken,
-            }},
         );
+        localStorage.setItem('apediid', apediid);
     } else if (pksList.includes(pk)) {
-        apiResult = await axios.post(`http://127.0.0.1:8000/produtos/orders/update/${pk}/`);
+        const pedidoId = localStorage.getItem('apediid')
+        const qntUpdate = await axios.post(`http://127.0.0.1:8000/produtos/orders/update/${pk}/`,
+        { data: qntValue}
+        );
     }
-    bodyAppend.innerHTML += apiResult.data;
+    // bodyAppend.innerHTML += apiResult.data;
     pksList.push(pk);
+    return
 }
 
 async function increaseQnt({ target }) {

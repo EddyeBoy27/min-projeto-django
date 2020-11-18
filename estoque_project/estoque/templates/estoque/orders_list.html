@@ -1,4 +1,9 @@
+{% extends 'estoque/base.html' %}
+
 <div>
+    <div>
+        <p>Pedido Id: <span id="apediid">{{ pednum.apediid }}</span></p>
+    </div>
     <div>
         <p> {{ prod.aprodnome }} </p>
     </div>
@@ -11,7 +16,7 @@
     <div>
         <div><button type="button" onclick="increaseQnt(event)" value="{{ prod.aprodid }}">+</button></div>
         <div>
-            <p id="order-qnt{{prod.a}}">{{ ped }}</p>
+            <p id="order-qnt" value="{{ ped.aprinid }}">{{ ped.aprinqnt }}</p>
         </div>
         <div><button type="button">-</button></div>
     </div>

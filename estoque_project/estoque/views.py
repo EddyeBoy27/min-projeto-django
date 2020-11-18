@@ -4,6 +4,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.views import LoginView
+from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, render, reverse, redirect
@@ -11,7 +12,7 @@ from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from .forms import ProductForm, UserForm, LoginForm
 
-from .models import Aproduto, Acliente, Aprodutoinstancia, Apedido
+from .models import Aproduto, Aprodutoinstancia, Apedido
 
 
 @method_decorator(login_required, name='dispatch')
@@ -24,7 +25,7 @@ class ProdutoListView(ListView):
         password = request.POST.get('aclipass', '')
         if request.method == 'POST':
             try:
-                actual_user = Acliente.objects.get(acliemail=email)
+                actual_user = User.objects.get(acliemail=email)
             except:
                 return redirect(reverse('login:login'))
             else:
@@ -85,12 +86,17 @@ class ProdutoDeleteView(DeleteView):
 
 
 class UserNewView(CreateView):
+    model = User
     form_class = UserCreationForm
     template_name = 'estoque/acliente_form.html'
     success_url = reverse_lazy('login')
 
+    def form_valid(self, form):
+        return super(UserNewView, self).form_valid(form)
+
 
 class LoginView(LoginView):
+    model = User
     template_name = 'estoque/login.html'
     form_class = LoginForm
     redirect_field_name = '/produtos/'
@@ -118,41 +124,35 @@ class NewOrderView(LoginRequiredMixin, TemplateView):
     template_name = 'estoque/orders_list.html'
 
     def post(self, request, *args, **kwargs):
-        if request.method == 'GET':
+        if request.method == 'POST':
             prod = Aproduto.objects.get(pk=kwargs['pk'])
             user_email = request.user
-            new_pedido = Apedido.objects.create()
+            user_cliente = User.objects.get(username=user_email)
+            new_pedido = Apedido.objects.create(acliid=user_cliente)
             new_pedido.save()
-            user_cliente = Acliente.objects.get(acliemail=user_email)
-            Aprodutoinstancia.objects.create(
+            new_pedido_inst = Aprodutoinstancia.objects.create(
                 aprinid_acli=user_cliente,
                 aprin_apedi=new_pedido,
                 aprinval=prod.aprodvalor,
                 aprinqnt=1
             )
-            print(Aprodutoinstancia.objects.get())
+            new_pedido_inst.save()
             # newprod = Aproduto.objects.get(pk=kwargs['pk'])
-            return render(request, self.template_name, {'prod': prod, 'ped': 1})
+            return render(request, self.template_name, {'prod': prod, 'ped': new_pedido_inst, 'pednum': new_pedido})
 
 
 @method_decorator(login_required, name='dispatch')
 class UpdateOrderView(LoginRequiredMixin, TemplateView):
     template_name = 'estoque/orders_list.html'
 
-    # def post(self, request, *args, **kwargs):
-    #     if request.method == 'GET':
-    #         prod = Aproduto.objects.get(pk=kwargs['pk'])
-    #         user_email = request.user
-    #         new_pedido = Apedido.objects.create()
-    #         new_pedido.save()
-    #         user_cliente = Acliente.objects.get(acliemail=user_email)
-    #         Aprodutoinstancia.objects.create(
-    #             aprinid_acli=user_cliente,
-    #             aprin_apedi=new_pedido,
-    #             aprinval=prod.aprodvalor,
-    #             aprinqnt=1
-    #         )
-    #         print(Aprodutoinstancia.objects.get())
-    #         # newprod = Aproduto.objects.get(pk=kwargs['pk'])
-    #         return render(request, self.template_name, {'prod': prod, 'ped': 1})
+    def post(self, request, *args, **kwargs):
+        if request.method == 'POST':
+            print(request.body)
+            print(args)
+            print(kwargs)
+            prod = Aproduto.objects.get(pk=kwargs['pk'])
+            user_email = request.user
+            user_cliente = User.objects.get(username=user_email)
+            
+            return render(request, self.template_name, {'prod': prod, 'ped': 1})
 

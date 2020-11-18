@@ -6,16 +6,17 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+from django.contrib.auth.models import User
 
 
-class Acliente(models.Model):
-    acliid = models.AutoField(primary_key=True)
-    aclinome = models.CharField(max_length=255)
-    acliemail = models.CharField(max_length=255)
+# class Acliente(models.Model):
+#     acliid = models.AutoField(primary_key=True)
+#     aclinome = models.CharField(max_length=255)
+#     acliemail = models.CharField(max_length=255)
 
-    class Meta:
-        managed = False
-        db_table = 'acliente'
+#     class Meta:
+#         managed = False
+#         db_table = 'acliente'
 
 
 class Apedido(models.Model):
@@ -43,7 +44,7 @@ class Aproduto(models.Model):
 
 class Aprodutoinstancia(models.Model):
     aprinid = models.AutoField(primary_key=True)
-    aprinid_acli = models.ForeignKey(Acliente, models.DO_NOTHING, db_column='aprinid_acli')
+    aprinid_acli = models.ForeignKey(User, models.DO_NOTHING, db_column='aprinid_acli')
     aprin_apedi = models.ForeignKey(Apedido, models.DO_NOTHING, db_column='aprin_apedi')
     aprinval = models.DecimalField(max_digits=10, decimal_places=2)
     aprinqnt = models.IntegerField()
