@@ -8,9 +8,12 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, render, reverse, redirect
-from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy, reverse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from .forms import ProductForm, UserForm, LoginForm
+from django.db.models import F
+import sys
+import json
 
 from .models import Aproduto, Aprodutoinstancia, Apedido
 
@@ -33,6 +36,19 @@ class ProdutoListView(ListView):
                     return redirect(reverse('login:login'))
             product = self.model.objects.all()
             return render(request, self.template_name, {'aproduto_list': product, 'user': email})
+
+
+@method_decorator(login_required, name='dispatch')
+class OrdersListView(LoginRequiredMixin, TemplateView):
+    template_name = 'estoque/carrinho.html'
+    model = Aprodutoinstancia
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(OrdersListView, self).get_context_data(**kwargs)
+        context['produtos'] = Aprodutoinstancia.objects.filter(
+            aprinid_acli=self.request.user.id,
+        )
+        return context
 
 
 @method_decorator(login_required, name='dispatch')
@@ -120,8 +136,7 @@ class LogoutView(RedirectView):
 
 
 @method_decorator(login_required, name='dispatch')
-class NewOrderView(LoginRequiredMixin, TemplateView):
-    template_name = 'estoque/orders_list.html'
+class NewOrderView(LoginRequiredMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         if request.method == 'POST':
@@ -130,29 +145,153 @@ class NewOrderView(LoginRequiredMixin, TemplateView):
             user_cliente = User.objects.get(username=user_email)
             new_pedido = Apedido.objects.create(acliid=user_cliente)
             new_pedido.save()
-            new_pedido_inst = Aprodutoinstancia.objects.create(
+            Aprodutoinstancia.objects.create(
                 aprinid_acli=user_cliente,
-                aprin_apedi=new_pedido,
+                aprinid_apedi=new_pedido,
+                aprinid_aprodid=prod,
                 aprinval=prod.aprodvalor,
                 aprinqnt=1
             )
-            new_pedido_inst.save()
+            pedido_inst_qnt = Aprodutoinstancia.objects.filter(
+                aprinid_acli_id=user_cliente,
+                aprinid_apedi_id=new_pedido,
+                aprinid_aprodid_id=prod,
+            ).values()[0]
+            return JsonResponse({'pedId':new_pedido.apediid, 'pedQnt': pedido_inst_qnt})
             # newprod = Aproduto.objects.get(pk=kwargs['pk'])
-            return render(request, self.template_name, {'prod': prod, 'ped': new_pedido_inst, 'pednum': new_pedido})
+            # return render(request, self.template_name, {'prod': prod, 'ped': new_pedido_inst, 'pednum': new_pedido})
 
 
 @method_decorator(login_required, name='dispatch')
-class UpdateOrderView(LoginRequiredMixin, TemplateView):
-    template_name = 'estoque/orders_list.html'
+class UpdateOrderView(LoginRequiredMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         if request.method == 'POST':
-            print(request.body)
-            print(args)
-            print(kwargs)
+            pedi_id = json.loads(request.body)['data']['pediId']
+            pedi_inst = Apedido.objects.get(pk=pedi_id)
             prod = Aproduto.objects.get(pk=kwargs['pk'])
             user_email = request.user
             user_cliente = User.objects.get(username=user_email)
-            
-            return render(request, self.template_name, {'prod': prod, 'ped': 1})
+            Aprodutoinstancia.objects.create(
+                aprinid_acli=user_cliente,
+                aprinid_apedi=pedi_inst,
+                aprinid_aprodid=prod,
+                aprinval=prod.aprodvalor,
+                aprinqnt=1
+            )
+            pedido_inst_qnt = Aprodutoinstancia.objects.filter(
+                aprinid_acli_id=user_cliente,
+                aprinid_apedi_id=pedi_id,
+                aprinid_aprodid_id=prod,
+            ).values()[0]
+            return JsonResponse({'pedQnt':pedido_inst_qnt})
 
+    def put(self, request, *args, **kwargs):
+        if request.method == 'PUT':
+            ped_inst_pk = json.loads(request.body)['data']['pedInst']
+            pedi_id = json.loads(request.body)['data']['pediId']
+            pedi_inst = Apedido.objects.get(pk=pedi_id)
+            prod = Aproduto.objects.get(pk=kwargs['pk'])
+            user_email = request.user
+            user_cliente = User.objects.get(username=user_email)
+            Aprodutoinstancia.objects.filter(
+                aprinid=ped_inst_pk['pedQnt'],
+                aprinid_acli_id=user_cliente,
+                aprinid_apedi_id=pedi_id,
+                aprinid_aprodid_id=prod,
+            ).update(
+                aprinqnt=F("aprinqnt") + 1,
+                aprinval=prod.aprodvalor + (prod.aprodvalor * F("aprinqnt")),
+            )
+            return JsonResponse({'data': 'lallaa'})
+
+
+@method_decorator(login_required, name="dispatch")
+class UpdateCarrinhoView(LoginRequiredMixin, UpdateView):
+    model = Aprodutoinstancia
+
+    def get(self, request, *args, **kwargs):
+        if request.method=='GET':
+            print('to no get tio')
+            print(request.body)
+            ped_inst_pk = json.loads(request.body)['data']['aprinid']
+            user_email = request.user
+            user_cliente = User.objects.get(username=user_email)
+            ped_inst_updated = self.model.objects.filter(
+                aprinid=ped_inst_pk,
+                aprinid_acli=user_cliente,
+            ).all()
+            return JsonResponse({ 'qnt': ped_inst_updated.aprinqnt, 'value': ped_inst_updated.aprinval})
+
+    def put(self, request, *args, **kwargs):
+        if request.method=='PUT':
+            ped_inst_pk = json.loads(request.body)['data']['aprinid']
+            method = json.loads(request.body)['data']['method']
+            ped_inst = Aprodutoinstancia.objects.get(pk=ped_inst_pk)
+            user_email = request.user
+            user_cliente = User.objects.get(username=user_email)
+            if method == 'increase':
+                Aprodutoinstancia.objects.filter(
+                    aprinid=ped_inst_pk,
+                    aprinid_acli=user_cliente,
+                ).update(
+                    aprinqnt=F("aprinqnt") + 1,
+                    aprinval=(F("aprinqnt") * ped_inst.aprinid_aprodid.aprodvalor)
+                )
+                print("atualizado increase")
+            elif method == 'decrease':
+                Aprodutoinstancia.objects.filter(
+                    aprinid=ped_inst_pk,
+                    aprinid_acli=user_cliente,
+                ).update(
+                    aprinqnt=(F("aprinqnt") - 1),
+                    aprinval=(F("aprinqnt") * ped_inst.aprinid_aprodid.aprodvalor)
+                )
+                print("atualizado decrease")
+        return HttpResponse(status=200)
+
+
+@method_decorator(login_required, name="dispatch")
+class FinishOrderView(LoginRequiredMixin, UpdateView):
+    model = Apedido
+
+    def put(self, request, *args, **kwargs):
+        user_email = request.user
+        user_cliente = User.objects.get(username=user_email)
+        pedi_id = json.loads(request.body)['data']['apediId']
+        self.model.objects.filter(
+            apediid=pedi_id,
+            acliid=user_cliente,
+        ).update(
+            apedistatus=2,
+        )
+        return HttpResponse(status=200)
+
+
+@method_decorator(login_required, name='dispatch')
+class MyOrdersList(LoginRequiredMixin, ListView):
+    model = Apedido
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(MyOrdersList, self).get_context_data(**kwargs)
+        user_email = self.request.user
+        user_cliente = User.objects.get(username=user_email)
+        context['pedidos'] = self.model.objects.filter(
+            apedistatus=2,
+            acliid=user_cliente.pk,
+        ).all()
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class MyOrdersDetailView(LoginRequiredMixin, TemplateView):
+    template_name = 'estoque/order_detail.html'
+    model = Aprodutoinstancia
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(MyOrdersDetailView, self).get_context_data(**kwargs)
+        context['order_list'] = self.model.objects.filter(
+            aprinid_apedi=self.kwargs['pk']
+        ).all()
+        return context
+        

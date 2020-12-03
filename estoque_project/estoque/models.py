@@ -4,19 +4,6 @@ from datetime import datetime, timedelta
 from django.contrib.auth.models import User
 
 
-# class User(AbstractBaseUser):
-#     acliid = models.AutoField(primary_key=True)
-#     aclinome = models.CharField(max_length=255, verbose_name='Nome')
-#     acliemail = models.CharField(max_length=255, verbose_name='Email', unique=True)
-#     aclipass = models.CharField(max_length=255, verbose_name='Senha')
-#     REQUIRED_FIELDS = ('acliid', 'aclinome', 'aclipass')
-#     USERNAME_FIELD = 'acliemail'
-
-#     class Meta:
-#         managed = False
-#         db_table = 'acliente'
-
-
 class Apedido(models.Model):
     apediid = models.AutoField(primary_key=True)
     acliid = models.ForeignKey(User, models.DO_NOTHING, db_column='acliid_id')
@@ -51,7 +38,8 @@ class Aproduto(models.Model):
 class Aprodutoinstancia(models.Model):
     aprinid = models.AutoField(primary_key=True)
     aprinid_acli = models.ForeignKey(User, models.DO_NOTHING, db_column="aprinid_acli")
-    aprin_apedi = models.ForeignKey(Apedido, models.DO_NOTHING, db_column="aprin_apedi")
+    aprinid_apedi = models.ForeignKey(Apedido, models.DO_NOTHING, db_column="aprinid_apedi")
+    aprinid_aprodid = models.ForeignKey(Aproduto, models.DO_NOTHING, db_column="aprinid_aprodid")
     aprinval = models.DecimalField(max_digits=10, decimal_places=2)
     aprinqnt = models.IntegerField()
 

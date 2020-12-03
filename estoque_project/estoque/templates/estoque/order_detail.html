@@ -1,0 +1,43 @@
+{% extends 'estoque/base.html' %}
+
+{% block title %}Detalhes do Pedido{% endblock %}
+
+{% block content %}
+<header>
+    <h1>Detalhes do Pedido</h1>
+</header>
+<nav>
+    <div>
+        <p>
+            Usuário: {{ request.user }}
+        </p>
+    </div>
+    <div>
+        <a href="{% url 'index:index' %}"><button type="button">Página Inicial</button></a>
+        <a href="{% url 'produto:list' %}"><button type="button">Lista de Produtos</button></a>
+        <a href="{% url 'user:my-orders'  %}"><button type="button">Meus Pedidos</button></a>
+    </div>
+</nav>
+<article>
+    <table>
+        <thead>
+            <th>Nome</th>
+            <th>Valor</th>
+            <th>Quantidade</th>
+        </thead>
+        {% for item in order_list %}
+        <tbody>
+            <td>{{ item.aprinid_aprodid.aprodnome }}</td>
+            <td id="val-span{{item.aprinid}}">{{item.aprinval}}</td>
+            <td>
+                <span id="qnt-span{{item.aprinid}}">{{ item.aprinqnt }}</span>
+            </td>
+        </tbody>
+        {% endfor %}
+    </table>
+    <div>
+        <h2>Data:</h2>
+        <p>{{ order_list.0.aprinid_apedi.apedidata }}</p>
+    </div>
+</article>
+{% endblock %}

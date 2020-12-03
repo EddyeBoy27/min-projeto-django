@@ -1,23 +1,26 @@
 {% extends 'estoque/base.html' %}
-
-<div>
+{% block content %}
+<aside>
     <div>
-        <p>Pedido Id: <span id="apediid">{{ pednum.apediid }}</span></p>
-    </div>
-    <div>
-        <p> {{ prod.aprodnome }} </p>
-    </div>
-    <div>
-        <p> {{ prod.aprodvalor }} </p>
-    <div>
-    <div>
-        <p>{{ prod.aprodqntd }}</p>
-    </div>
-    <div>
-        <div><button type="button" onclick="increaseQnt(event)" value="{{ prod.aprodid }}">+</button></div>
         <div>
-            <p id="order-qnt" value="{{ ped.aprinid }}">{{ ped.aprinqnt }}</p>
+            <p>Pedido Id: <span id="apediid">{{ order_list.get_context_data}}</span></p>
         </div>
-        <div><button type="button">-</button></div>
+        <table>
+            <thead>
+                <th>Produto</th>
+                <th>Valor</th>
+                <th>Quantidade</th>
+            </thead>
+            <tbody>
+            {% for produto in produtos_pedido %}
+                <tr>
+                    <td><a href="{{ produto.get_absolute_url }}">{{ produto.aprinid_apro.aprodnome }}</a></td>
+                    <td>{{ produto.aprinval }}</td>
+                    <td>{{ produto.aprinqnt }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
-</div>
+</aside>
+{% endblock %}

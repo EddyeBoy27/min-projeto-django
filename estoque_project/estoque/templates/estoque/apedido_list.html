@@ -1,0 +1,29 @@
+{% extends 'estoque/base.html' %}
+
+{% block title %}Meus Pedidos{% endblock %}
+
+{% block content %}
+<header>
+    <h1>Meus Pedidos</h1>
+</header>
+<a href="{% url 'index:index' %}"><button type="button">Página Inicial</button></a>
+<p>Usuário: {{ request.user }}</p>
+<article>
+    <table>
+        <thead>
+            <th>Pedido Nº</th>
+            <th>Data Pedido</th>
+            <th>Status Pedido</th>
+            <th>Data Vencimento</th>
+        </thead>
+        {% for pedido in pedidos %}
+        <tbody>
+            <td><a href="{% url 'user:detail-order' pk=pedido.apediid %}">{{ pedido.apediid }}</a></td>
+            <td>{{ pedido.apedidata|date:"M d, Y" }}</td>
+            <td>{{ pedido.apedistatus }}</td>
+            <td>{{ pedido.apedivenc|date:"M d, Y" }}</td>
+        </tbody>
+        {% endfor %}
+    </table>
+</article>
+{% endblock %}

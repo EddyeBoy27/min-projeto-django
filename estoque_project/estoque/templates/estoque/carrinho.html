@@ -1,0 +1,44 @@
+{% extends 'estoque/base.html' %}
+{% block title %}Carrinho de Compras{% endblock %}
+{% block content %}
+<header>
+    <h1>Carrinho de Compras</h1>
+</header>
+<nav>
+    <div>
+        <p>
+            Usuário: {{ request.user }}
+        </p>
+    </div>
+    <div>
+        <a href="{% url 'index:index' %}"><button type="button">Página Inicial</button></a>
+        <a href="{% url 'produto:list' %}"><button type="button">Lista de Produtos</button></a>
+    </div>
+</nav>
+{% csrf_token %}
+<article>
+    <table>
+        <thead>
+            <th>Nome</th>
+            <th>Valor</th>
+            <th>Quantidade</th>
+        </thead>
+        {% for item in produtos %}
+        {% if item.aprinid_apedi.apedistatus == 1 %}
+        <tbody>
+            <td>{{ item.aprinid_aprodid.aprodnome }}</td>
+            <td id="val-span{{item.aprinid}}">{{item.aprinval}}</td>
+            <td>
+                <button type="button" onclick="increaseQnt(event)" value="{{item.aprinid}}">+</button>
+                <span id="qnt-span{{item.aprinid}}">{{ item.aprinqnt }}</span>
+                <button type="button" onclick="decreaseQnt(event)" value="{{item.aprinid}}">-</button>
+            </td>
+        </tbody>
+        {% endif %}
+        {% endfor %}
+    </table>
+    <div>
+        <a><button type="submit" onclick="finishOrder(event)" value="{{item.aprinid}}">Finalizar compra</button></a>
+    </div>
+</article>
+{% endblock %}

@@ -9,19 +9,23 @@
 </header>
 <a href="{% url 'index:index' %}"><button type="button">Página Inicial</button></a>
 <a href="{% url 'produto:create' %}"><button type="button">Criar Produto</button></a>
+<div class="container-carrinho">
+    <a href="{% url 'produto:carrinho' %}"><button type="button">Carrinho de compras</button></a>
+    <div id="carrinho-qntd">0</div>
+</div>
 <p>Usuário: {{ request.user }}</p>
 {% csrf_token %}
 <article>
-    {% for produto in aproduto_list %}
     <table>
         <thead>
             <th>Produto</th>
             <th>Valor</th>
             <th>Quantidade</th>
             <th>Ativo</th>
-            <th>Remover</th>
+            <th>Remover Produto</th>
             <th>Adicionar ao Carrinho</th>
         </thead>
+        {% for produto in aproduto_list %}
         <tbody>
             <td><a href="{{ produto.get_absolute_url }}">{{ produto.aprodnome }}</a></td>
             <td>{{ produto.aprodvalor }}</td>
@@ -38,10 +42,8 @@
                 </button>
             </td>
         </tbody>
+        {% endfor %}
     </table>
-    {% endfor %}
 </article>
-<aside id="aside-container">
-</aside>
 
 {% endblock %}
