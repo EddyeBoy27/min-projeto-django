@@ -1,0 +1,1 @@
+web: gunicorn estoque_project.wsgi --log-file -
