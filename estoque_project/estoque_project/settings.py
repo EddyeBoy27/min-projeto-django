@@ -10,10 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
-from pathlib import Path
-from django.urls import reverse
 import os
 import dj_database_url
+from pathlib import Path
+from django.urls import reverse
 # import django_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -140,7 +140,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'estoque_projetc/static')]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'estoque_project/static')]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 LOGIN_REDIRECT_URL = 'index/'
