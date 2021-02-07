@@ -9,7 +9,7 @@ async function orderList(event) {
     axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
     if (!pedIdLs) {
         const { data: { pedId, pedQnt } } = await axios.post(
-            `http://eng-django.herokuapp.com/produtos/orders/add/${pk}/`,
+            `https://eng-django.herokuapp.com/produtos/orders/add/${pk}/`,
         );
         localStorage.setItem('pedidoId', pedId);
         localStorage.setItem(`pediInstId${pk}`, JSON.stringify({
@@ -19,7 +19,7 @@ async function orderList(event) {
         pksList.push(pk);
     } else if (pedIdLs && !pksList.includes(pk)) {
         const { data: { pedQnt }} = await axios.post(
-            `http://eng-django.herokuapp.com/produtos/orders/update/${pk}/`,
+            `https://eng-django.herokuapp.com/produtos/orders/update/${pk}/`,
             { data: {
                 'pedInst': JSON.parse(pedInstLs),
                 'pediId': pedIdLs,
@@ -32,7 +32,7 @@ async function orderList(event) {
         pksList.push(pk);
     } else {
         await axios.put(
-            `http://eng-django.herokuapp.com/produtos/orders/update/${pk}/`,
+            `https://eng-django.herokuapp.com/produtos/orders/update/${pk}/`,
             { data: {
                 'pedInst': JSON.parse(pedInstLs),
                 'pediId': pedIdLs,
@@ -52,11 +52,11 @@ async function increaseQnt({ target }) {
     axios.defaults.xsrfCookieName = 'csrftoken';
     axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
     await axios.put(
-        "http://eng-django.herokuapp.com/produtos/orders/update/",
+        "https://eng-django.herokuapp.com/produtos/orders/update/",
         { data: { 'aprinid': aprinid, 'method': 'increase' } },
     );
     const updateResult = await axios.get(
-        "http://eng-django.herokuapp.com/produtos/orders/update/",
+        "https://eng-django.herokuapp.com/produtos/orders/update/",
         { params: { 'aprinid': aprinid } },
     );
     console.log(updateResult);
@@ -73,11 +73,11 @@ async function decreaseQnt({ target }) {
     axios.defaults.xsrfCookieName = 'csrftoken';
     axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
     await axios.put(
-        "http://eng-django.herokuapp.com/produtos/orders/update/",
+        "https://eng-django.herokuapp.com/produtos/orders/update/",
         { data: { 'aprinid': aprinid, 'method': 'decrease' } },
     );
     const updateResult = await axios.get(
-        "http://eng-django.herokuapp.com/produtos/orders/update/",
+        "https://eng-django.herokuapp.com/produtos/orders/update/",
         { params: { 'aprinid': aprinid } },
     );
     const { data: { qnt, value }} = updateResult;
@@ -93,11 +93,11 @@ async function finishOrder(event) {
     axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
     const pediId = localStorage.getItem('pedidoId');
     await axios.put(
-        "http://eng-django.herokuapp.com/produtos/orders/done/",
+        "https://eng-django.herokuapp.com/produtos/orders/done/",
         { data: { 'apediId': pediId } },
     );
     localStorage.clear();
-    window.location.replace("http://eng-django.herokuapp.com/index/")
+    window.location.replace("https://eng-django.herokuapp.com/index/")
     return
 }
 
