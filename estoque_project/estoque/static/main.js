@@ -57,7 +57,7 @@ async function increaseQnt({ target }) {
     );
     const updateResult = await axios.get(
         "http://127.0.0.1:8000/produtos/orders/update/",
-        { data: { 'aprinid': aprinid } },
+        { params: { 'aprinid': aprinid } },
     );
     console.log(updateResult);
     const { data: { qnt, value }} = updateResult;
@@ -78,7 +78,7 @@ async function decreaseQnt({ target }) {
     );
     const updateResult = await axios.get(
         "http://127.0.0.1:8000/produtos/orders/update/",
-        { data: { 'aprinid': aprinid } },
+        { params: { 'aprinid': aprinid } },
     );
     const { data: { qnt, value }} = updateResult;
     qntHTML.innerHTML = qnt;

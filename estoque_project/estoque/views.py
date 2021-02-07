@@ -212,16 +212,14 @@ class UpdateCarrinhoView(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         if request.method=='GET':
-            print('to no get tio')
-            print(request.body)
-            ped_inst_pk = json.loads(request.body)['data']['aprinid']
+            ped_inst_pk = request.GET['aprinid']
             user_email = request.user
             user_cliente = User.objects.get(username=user_email)
             ped_inst_updated = self.model.objects.filter(
                 aprinid=ped_inst_pk,
                 aprinid_acli=user_cliente,
             ).all()
-            return JsonResponse({ 'qnt': ped_inst_updated.aprinqnt, 'value': ped_inst_updated.aprinval})
+            return JsonResponse({ 'qnt': ped_inst_updated[0].aprinqnt, 'value': ped_inst_updated[0].aprinval})
 
     def put(self, request, *args, **kwargs):
         if request.method=='PUT':
@@ -238,7 +236,6 @@ class UpdateCarrinhoView(LoginRequiredMixin, UpdateView):
                     aprinqnt=F("aprinqnt") + 1,
                     aprinval=(F("aprinqnt") * ped_inst.aprinid_aprodid.aprodvalor)
                 )
-                print("atualizado increase")
             elif method == 'decrease':
                 Aprodutoinstancia.objects.filter(
                     aprinid=ped_inst_pk,
@@ -247,7 +244,6 @@ class UpdateCarrinhoView(LoginRequiredMixin, UpdateView):
                     aprinqnt=(F("aprinqnt") - 1),
                     aprinval=(F("aprinqnt") * ped_inst.aprinid_aprodid.aprodvalor)
                 )
-                print("atualizado decrease")
         return HttpResponse(status=200)
 
 
